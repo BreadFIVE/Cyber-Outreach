@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VDE Quest – Vulnerability Challenge Day</title>
+<!--
+  Nice work – you read the source! That's hacker habit #1.
+  Your first flag: CTF{view_source_ftw}
+-->
+<style>
+:root{
+  --bg:#0a0e14;--panel:#111823;--panel2:#161f2e;--line:#243044;--text:#d6e2f0;--dim:#7e8ea6;
+  --green:#39ff88;--cyan:#38d6ff;--amber:#ffc247;--red:#ff5d6c;--purple:#b58bff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}
+body{min-height:100vh;background-image:radial-gradient(circle at 15% -10%,#12304a55,transparent 45%),radial-gradient(circle at 100% 0,#2a164a44,transparent 40%)}
+code,pre,.mono{font-family:var(--mono)}
+code{background:#0b111a;padding:1px 5px;border-radius:4px;font-size:.92em}
+a{color:var(--cyan)}
+button{font:inherit;cursor:pointer}
+.hidden{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:20;background:#0a0e14ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 0}
+.logo{font-family:var(--mono);font-weight:700;color:var(--green);letter-spacing:.5px}
+.logo span{color:var(--dim);font-weight:400}
+.stat{font-family:var(--mono);font-size:14px;background:var(--panel);border:1px solid var(--line);padding:5px 10px;border-radius:8px}
+.stat b{color:var(--cyan)}
+.stat.timer b{color:var(--green);font-size:17px}
+.stat.timer.warn b{color:var(--amber)}
+.stat.timer.crit b{color:var(--red);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.spacer{flex:1}
+.bar{height:3px;background:var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .4s}
+nav.tabs{display:flex;gap:6px;padding:10px 0;flex-wrap:wrap}
+nav.tabs button{background:transparent;border:1px solid var(--line);color:var(--dim);padding:7px 14px;border-radius:8px;font-family:var(--mono);font-size:13px}
+nav.tabs button.on{color:var(--bg);background:var(--green);border-color:var(--green);font-weight:700}
+nav.tabs button:hover:not(.on){color:var(--text);border-color:var(--dim)}
+#welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+.welcome-card{max-width:680px;width:100%}
+.ascii{color:var(--green);font-size:12px;line-height:1.15;margin:0 0 14px;overflow:auto}
+h1,h2,h3{line-height:1.2;margin:0 0 10px}
+h1{font-size:28px}h2{font-size:20px}
+.lead{color:var(--dim);margin:0 0 16px}
+input[type=text],textarea,select{width:100%;background:#0b111a;border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:8px;font-family:var(--mono);font-size:14px}
+input:focus,textarea:focus,select:focus{outline:2px solid #38d6ff55;border-color:var(--cyan)}
+textarea{resize:vertical;min-height:70px}
+.btn{background:var(--green);color:#04210f;border:0;padding:10px 18px;border-radius:8px;font-weight:700}
+.btn:hover{filter:brightness(1.1)}
+.btn.sec{background:var(--panel2);color:var(--text);border:1px solid var(--line);font-weight:500}
+.btn.sm{padding:6px 11px;font-size:13px}
+.btn.warn{background:var(--amber);color:#2b1d00}
+.btn.danger{background:var(--red);color:#2b0006}
+ul.rules{padding-left:20px;color:var(--dim)}
+ul.rules li{margin:4px 0}
+.ethics{border-left:3px solid var(--amber);background:#ffc2470f;padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14px}
+.cat{margin:22px 0 8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cat h2{margin:0}
+.cat small{color:var(--dim);font-family:var(--mono)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.ch{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;color:var(--text);transition:.15s}
+.ch:hover{border-color:var(--cyan);transform:translateY(-2px)}
+.ch .t{font-weight:700;margin-bottom:6px}
+.ch .m{display:flex;justify-content:space-between;color:var(--dim);font-family:var(--mono);font-size:13px}
+.ch .pts{color:var(--amber)}
+.ch.done{border-color:#39ff8866;background:#0f2a1c}
+.ch.done .t::after{content:" ✓";color:var(--green)}
+.ch.done .pts{color:var(--green)}
+.modal{position:fixed;inset:0;background:#000b;z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:820px;padding:22px;position:relative}
+.mclose{position:absolute;top:12px;right:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);width:34px;height:34px;border-radius:8px;font-size:18px}
+.tag{display:inline-block;font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--dim);margin-right:6px}
+.tag.pts{color:var(--amber);border-color:#ffc24755}
+.body p{margin:10px 0}
+.flagrow{display:flex;gap:8px;margin-top:16px}
+.flagrow input{flex:1}
+.msg{margin-top:10px;font-family:var(--mono);font-size:14px;min-height:20px}
+.msg.ok{color:var(--green)}.msg.bad{color:var(--red)}
+.hints{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.hint{background:#ffc2470f;border-left:3px solid var(--amber);padding:8px 12px;margin:8px 0;border-radius:0 8px 8px 0;font-size:14px}
+pre.code{background:#0b111a;border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;font-size:13px;margin:10px 0}
+.box{background:#0b111a;border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+.res{margin-top:10px;font-family:var(--mono);font-size:13px}
+.res.ok{color:var(--green)}.res.bad{color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.row label{color:var(--dim);font-size:13px}
+.row input[type=number],.row input[type=text]{width:120px}
+.row input[type=number]{background:#0b111a;border:1px solid var(--line);color:var(--text);padding:8px;border-radius:8px;font-family:var(--mono)}
+/* widgets */
+.ord{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;font-size:14px}
+.ord .n{font-family:var(--mono);color:var(--dim);width:22px}
+.ord .tx{flex:1}
+.ord button{background:#0b111a;border:1px solid var(--line);color:var(--text);border-radius:6px;width:30px;height:28px}
+.mrow{display:grid;grid-template-columns:1fr 210px;gap:10px;align-items:center;margin:8px 0;font-size:14px}
+@media(max-width:600px){.mrow{grid-template-columns:1fr}}
+.tfrow{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.tfrow .bt{display:flex;gap:6px;flex:none}
+.tfrow button{border:1px solid var(--line);background:#0b111a;color:var(--text);border-radius:6px;padding:4px 12px}
+.tfrow button.sel{background:var(--cyan);color:#012;border-color:var(--cyan);font-weight:700}
+.cl{font-family:var(--mono);font-size:13px;background:#05080c;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:8px 0}
+.cl div{padding:5px 10px;cursor:pointer;white-space:pre;overflow:auto}
+.cl div:hover{background:#13202e}
+.cl div.sel{background:#1b3550;color:#fff}
+.q{margin:12px 0;font-size:14px}
+.q label{display:block;margin:4px 0;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
+.q label:hover{border-color:var(--cyan)}
+.q input{margin-right:8px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--green);color:#04210f;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:.3s;z-index:99;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.bad{background:var(--red);color:#2b0006}
+footer{color:var(--dim);font-size:12px;text-align:center;padding:30px 0 40px}
+table.sum,table.ref{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+table.sum td,table.sum th,table.ref td,table.ref th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+table.sum td:last-child,table.sum th:last-child{text-align:right}
+.pace{display:grid;grid-template-columns:90px 1fr;gap:6px 12px;font-size:14px}
+.pace b{font-family:var(--mono);color:var(--cyan)}
+.tk{display:grid;gap:14px}
+@media(max-width:560px){.stat{font-size:12px;padding:4px 7px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+
+<section id="welcome" class="hidden">
+  <div class="card welcome-card">
+    <pre class="ascii mono">
+ __     ______  _____    ___                  _
+ \ \   / /  _ \| ____|  / _ \ _   _  ___  ___| |_
+  \ \ / /| | | |  _|   | | | | | | |/ _ \/ __| __|
+   \ V / | |_| | |___  | |_| | |_| |  __/\__ \ |_
+    \_/  |____/|_____|  \__\_\\__,_|\___||___/\__|</pre>
+    <h1>Welcome, analyst.</h1>
+    <p class="lead">A capture-the-flag challenge day on <b>Vulnerability Discovery &amp; Exploitation</b> concepts: CIA, integer bugs, the stack, unsafe C, format strings, the heap, fuzzing and memory protections.</p>
+    <ul class="rules">
+      <li>Each challenge hides a <b>flag</b> in the format <code>CTF{something_like_this}</code>. Find it, submit it, bank the points.</li>
+      <li>Hints are available but <b>cost points</b> (10% for the first, 30% for the second).</li>
+      <li>You have <b>one clock</b> for everything. Skip hard ones and come back – harder challenges are worth more.</li>
+      <li>The <b>Toolkit</b> tab has a wrap-around calculator and a hex/ASCII converter. A pen and paper help too.</li>
+      <li>Work in teams of 2–4. Explain your reasoning to each other – that's how you learn it.</li>
+    </ul>
+    <div class="ethics"><b>⚖️ Rules of engagement:</b> This game is about <i>understanding</i> vulnerabilities so we can find and fix them. Everything here is conceptual or simulated. In the real world, only test systems you own or have <b>written permission</b> to test. Unauthorised access is a crime (in the UK, the Computer Misuse Act 1990).</div>
+    <label for="teamname" class="lead" style="display:block;margin-bottom:6px">Team name</label>
+    <input id="teamname" type="text" maxlength="30" placeholder="e.g. Segfault Squad" autocomplete="off">
+    <p style="margin:16px 0 0"><button class="btn" id="startbtn">▶ Start the clock</button></p>
+    <p class="lead" style="margin:12px 0 0;font-size:13px">Progress saves in this browser, so refreshing won't lose your score. Use one device per team.</p>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+<header class="top">
+  <div class="wrap">
+    <div class="topin">
+      <div class="logo">VDE<span>QUEST</span></div>
+      <div class="stat">Team <b id="hTeam">–</b></div>
+      <div class="spacer"></div>
+      <div class="stat">Score <b id="hScore">0</b></div>
+      <div class="stat">Solved <b id="hSolved">0/0</b></div>
+      <div class="stat timer" id="timerBox">⏱ <b id="hTimer">90:00</b></div>
+    </div>
+  </div>
+  <div class="bar"><i id="hBar"></i></div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs" id="tabs">
+    <button data-tab="board" class="on">🎯 Challenges</button>
+    <button data-tab="tools">🧰 Toolkit</button>
+    <button data-tab="brief">📋 Briefing</button>
+  </nav>
+
+  <section id="tab-board"></section>
+
+  <section id="tab-tools" class="hidden">
+    <h2>🧰 Toolkit</h2>
+    <p class="lead">Small helpers that run in your browser. They're here to save arithmetic, not to think for you.</p>
+    <div class="tk">
+      <div class="card">
+        <h3>Wrap-around calculator</h3>
+        <p class="lead" style="font-size:13px;margin:0 0 8px">Computes a result the way a fixed-size integer would store it.</p>
+        <div class="row">
+          <label>Type</label>
+          <select id="wType" style="width:190px"><option value="u8">unsigned char (0–255)</option><option value="s8">signed char (−128–127)</option><option value="u16">unsigned 16-bit</option><option value="u32">unsigned 32-bit</option></select>
+          <input type="number" id="wA" value="200"><select id="wOp" style="width:70px"><option>+</option><option>-</option><option>*</option></select><input type="number" id="wB" value="100">
+          <button class="btn sec sm" id="wGo">Calculate</button>
+        </div>
+        <div class="res" id="wOut"></div>
+      </div>
+      <div class="card">
+        <h3>Hex / decimal / ASCII</h3>
+        <div class="row"><label>Value</label><input type="text" id="cvIn" placeholder="e.g. 0x41, 65 or A" style="width:200px"><button class="btn sec sm" id="cvGo">Convert</button></div>
+        <div class="res" id="cvOut" style="color:var(--text)"></div>
+      </div>
+      <div class="card">
+        <h3>Cheat sheet</h3>
+        <table class="ref">
+          <tr><th>Type</th><th>Range</th></tr>
+          <tr><td>unsigned char</td><td>0 to 255</td></tr>
+          <tr><td>signed char</td><td>−128 to 127</td></tr>
+          <tr><th colspan="2" style="padding-top:12px">Fuzzing lifecycle</th></tr>
+          <tr><td colspan="2" style="white-space:normal">Identify target → identify inputs → generate data → execute → monitor → determine exploitability</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-brief" class="hidden">
+    <div class="card">
+      <h2>📋 Briefing</h2>
+      <p class="lead">Suggested pacing for a 90-minute session:</p>
+      <div class="pace">
+        <b>0–10 min</b><span>Warm-up. View source, CIA sorting, registers and vocab.</span>
+        <b>10–40 min</b><span>Split up: one on integers, one on the stack and unsafe C, one on fuzzing.</span>
+        <b>40–75 min</b><span>Format strings, the heap and memory protections, then the 200+ point challenges.</span>
+        <b>75–90 min</b><span>Take on the Mock Exam Gauntlet and spend hints on anything left.</span>
+      </div>
+      <h3 style="margin-top:20px">Flag tips</h3>
+      <ul class="rules">
+        <li>Flags look like <code>CTF{...}</code>. Not case-sensitive, but spelling and underscores matter.</li>
+        <li>Numbers go in plainly, e.g. <code>CTF{44}</code>. Terms use underscores, e.g. <code>CTF{memory_leak}</code>.</li>
+        <li>Interactive challenges <b>reveal</b> their flag once you get every part right.</li>
+      </ul>
+      <div class="row" style="margin-top:18px">
+        <button class="btn warn" id="finishBtn">🏁 Finish &amp; show report</button>
+        <button class="btn sec" id="reportBtn">📄 View current report</button>
+      </div>
+      <div id="hostbox" class="hidden" style="margin-top:20px;border-top:1px solid var(--line);padding-top:14px">
+        <h3>🔧 Host controls</h3>
+        <div class="row">
+          <button class="btn sec sm" id="hostPlus">+10 minutes</button>
+          <button class="btn danger sm" id="hostReset">Reset this browser</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="wrap">VDE Quest · concept-level challenges for learning · stay legal, stay curious</footer>
+</div>
+
+<div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+const A=s=>atob(s);
+const DATA=[{"id":"i1","cat":"intro","title":"Read the Room","pts":50,"diff":1,"body":"<p>Every good analyst starts by looking at what's already in front of them. Right-click this page and choose <b>\"View Page Source\"</b> (or press <code>Ctrl+U</code>). Near the top of the HTML is a comment with your first flag.</p>","h":["kvkl7o287e"],"hints":["Look for an HTML comment: <code>&lt;!-- ... --&gt;</code> near the &lt;head&gt;.","It is in the first 10 lines of the document, right after the &lt;title&gt; tag."],"widget":null},{"id":"i2","cat":"intro","title":"CIA Triage","pts":75,"diff":1,"body":"<p>The <b>CIA triad</b> (Confidentiality, Integrity, Availability) underpins security design. Decide which property each incident attacks <b>most directly</b>.</p>","h":["27czz8fy2za"],"hints":["Confidentiality = who can see it. Integrity = is it unaltered and trustworthy. Availability = does it work when needed.","A DDoS attack does not steal or change data; it stops the service working."],"widget":"match","w":{"opts":["Confidentiality","Integrity","Availability"],"rows":[{"q":"Customer records are copied from a database by an outsider.","a":"Confidentiality"},{"q":"An attacker quietly changes a bank balance from £500 to £5.","a":"Integrity"},{"q":"A flood of traffic makes the company website unreachable.","a":"Availability"},{"q":"Ransomware encrypts a hospital's patient files so staff cannot open them.","a":"Availability"}]},"rv":"Q1RGe3RyaWFkX3RyaWFnZWR9"},{"id":"fo1","cat":"found","title":"Vocab Check","pts":100,"diff":1,"body":"<p>Match each definition to the correct term.</p>","h":["1c92zmsuofz"],"hints":["An \"exploit\" as a noun is a thing (code or tool). To exploit as a verb is an action.","A 0-day is defined by the vendor not knowing, or no patch being available."],"widget":"match","w":{"opts":["Vulnerability","An exploit (noun)","0-day exploit","Shellcode"],"rows":[{"q":"A flaw in a system's security that lets an attacker use it in a way the designer did not intend.","a":"Vulnerability"},{"q":"The tool, code or instructions used to take advantage of a flaw.","a":"An exploit (noun)"},{"q":"An exploit for a flaw that has not been publicly disclosed, so no patch exists.","a":"0-day exploit"},{"q":"x86 machine instructions injected into memory and run by the exploited program.","a":"Shellcode"}]},"rv":"Q1RGe2tub3dfeW91cl90ZXJtc30="},{"id":"fo2","cat":"found","title":"Register Roll-Call","pts":75,"diff":1,"body":"<p>Two x86 registers matter enormously for memory-corruption bugs.</p>\n<ol><li>Which register holds the address of the <b>next instruction</b> to execute?</li><li>Which register is the <b>stack pointer</b>, pointing at the current top of the stack?</li></ol>\n<p>Flag: both names in lowercase, joined with an underscore, in that order: <code>CTF{first_second}</code>.</p>","h":["2bcf92lcnol"],"hints":["Both names are three letters and end in \"p\".","EIP is the Instruction Pointer. ESP is the Stack Pointer."],"widget":null},{"id":"fo3","cat":"found","title":"Syntax Switch","pts":75,"diff":2,"body":"<p>In <b>Intel</b> syntax the instruction <code>mov eax, 1</code> copies a value. In <b>AT&amp;T</b> syntax the same operation is written <code>movl $1, %eax</code>.</p>\n<p>In the Intel version, which operand is the <b>destination</b>? Flag: <code>CTF{register_name}</code>.</p>","h":["1hetbex3kfg"],"hints":["Intel puts the destination first; AT&amp;T is the reverse (source first).","The destination is the first operand in <code>mov eax, 1</code>."],"widget":null},{"id":"n1","cat":"ints","title":"Rollover","pts":75,"diff":1,"body":"<p>An <code>unsigned char</code> holds 0 to 255.</p>\n<pre class=\"code\">unsigned char x = 200;\nx = x + 100;</pre>\n<p>What value is <code>x</code> afterwards? Flag: <code>CTF{number}</code>.</p>","h":["zhrqrvqr7n"],"hints":["200 + 100 = 300, which does not fit in 8 bits. Think of a clock that wraps at 256.","300 mod 256 = 44."],"widget":null},{"id":"n2","cat":"ints","title":"Underflow","pts":75,"diff":1,"body":"<pre class=\"code\">unsigned char n = 0;\nprintf(\"%hhu\\n\", n - 1);</pre>\n<p>What does this print? Flag: <code>CTF{number}</code>.</p>","h":["12jagqnvizc"],"hints":["Unsigned types cannot go negative, so subtracting past zero wraps around.","It wraps to the maximum value of an unsigned char."],"widget":null},{"id":"n3","cat":"ints","title":"The Endless Loop","pts":100,"diff":2,"body":"<pre class=\"code\">for (unsigned int i = 10; i &gt;= 0; i--) {\n    printf(\"%u\\n\", i);\n}</pre>\n<p>This program never finishes. One word describing what happens: <code>CTF{word}</code>.</p>","h":["1c1g1qnv36q","1y0sy2p6w74","frmcc2hhro"],"hints":["An unsigned integer can never be less than zero. So is <code>i &gt;= 0</code> ever false?","When <code>i</code> is 0 and decrements, it wraps to a huge value instead of going negative: the loop is <b>infinite</b>."],"widget":null},{"id":"n4","cat":"ints","title":"Tiny Allocation","pts":150,"diff":3,"body":"<p>To keep the maths easy, pretend <code>size</code> is a single unsigned byte (range 0 to 255):</p>\n<pre class=\"code\">unsigned char count = 70;\nunsigned char size  = count * 4;   // bytes to allocate\nchar *buf = malloc(size);\n/* ...later the program writes count * 4 bytes into buf... */</pre>\n<p>How many bytes does <code>malloc</code> actually receive? Flag: <code>CTF{number}</code>. (Notice the size the program <i>expects</i> to write is far bigger. That mismatch is the whole security problem.)</p>","h":["20s9ifypxel"],"hints":["70 × 4 = 280, but a byte cannot store 280. Use the Toolkit wrap-around calculator with unsigned char and the * operator.","280 − 256 = 24."],"widget":null},{"id":"s1","cat":"stack","title":"Frame Builder","pts":100,"diff":2,"body":"<p>Stack frames sit in memory with the stack growing <b>downward</b>. Arrange the parts of a simple function's frame from the <b>lowest address to the highest address</b> (top of the list = lowest).</p>","h":["13a799ukk58"],"hints":["Local variables and buffers live at the low end, so an overflow travels upward toward the return address.","Order: local variables → saved EBP → return address → parameters."],"widget":"order","w":{"prompt":"Lowest address first:","items":["Local variables (e.g. the buffer)","Saved EBP","Return address","Function parameters"]},"rv":"Q1RGe2xvd2VzdF90b19oaWdoZXN0fQ=="},{"id":"s2","cat":"stack","title":"Padding Arithmetic","pts":125,"diff":2,"body":"<p>A function on a 32-bit system declares a local buffer of <b>64 bytes</b>. Directly above it in memory is the <b>4-byte saved EBP</b>, and above that is the return address.</p>\n<p>How many bytes sit between the start of the buffer and the return address? Flag: <code>CTF{number}</code>.</p>","h":["1055d6qwqeq"],"hints":["The buffer is 64 bytes, then you pass through the saved EBP first.","64 + 4 = 68."],"widget":null},{"id":"s3","cat":"stack","title":"String Capacity","pts":50,"diff":1,"body":"<pre class=\"code\">char string[10];</pre>\n<p>How many <b>characters</b> of text can this array safely hold as a C string? Flag: <code>CTF{number}</code>.</p>","h":["3az7miadbb"],"hints":["Every C string ends with a hidden terminator byte.","One of the 10 bytes is reserved for the null byte <code>\\0</code>."],"widget":null},{"id":"s4","cat":"stack","title":"Sled Maths","pts":100,"diff":2,"body":"<p>A NOP sled (the byte <code>0x90</code> repeated) widens the target so the guessed return address does not have to be exact. In a textbook payload the buffer is filled with <b>sled + shellcode</b>.</p>\n<p>The buffer holds <b>64 bytes</b> and the shellcode is <b>24 bytes</b>. If the sled and shellcode fill the buffer exactly, how long is the sled? Flag: <code>CTF{number}</code>.</p>","h":["1c7f83xs1m0"],"hints":["Sled size + shellcode size = buffer size.","64 − 24 = 40."],"widget":null},{"id":"s5","cat":"stack","title":"Locked Stack, Open Door","pts":125,"diff":2,"body":"<p>Marking the stack <b>non-executable</b> stops injected code from running on the stack, but attackers still have ways to reuse code that is <i>already</i> executable.</p>\n<p>One classic technique crafts a fake stack frame so that a function from the C library (such as <code>system</code>) gets called, and the C library is always in executable memory. What is it called? Flag: <code>CTF{name}</code> (lowercase).</p>","h":["1yfwzyumcbo"],"hints":["The name is \"return-to-\" followed by the library.","It is written ret2libc."],"widget":null},{"id":"s6","cat":"stack","title":"Bug Hunt I","pts":150,"diff":2,"body":"<p>Both snippets have a classic memory-safety flaw. Find the root-cause line in each.</p>","h":["1mg6pwbyoik"],"hints":["Look for a call that never asks how big the destination is, and a call that hands user input to something that interprets it.","Snippet 1: <code>gets</code> reads with no limit at all. Snippet 2: user input is used directly as the format string."],"widget":"bughunt","w":{"snips":[{"title":"Snippet 1","lines":["void greet(void) {","    char name[16];","    gets(name);","    printf(\"Hi %s\\n\", name);","}"],"a":2},{"title":"Snippet 2","lines":["char input[128];","fgets(input, sizeof(input), stdin);","printf(input);","return 0;"],"a":2}]},"rv":"Q1RGe3R3b19idWdzX29uZV9odW50ZXJ9"},{"id":"u1","cat":"unsafe","title":"Safe Replacements","pts":125,"diff":1,"body":"<p>Every unsafe string function has a bounded cousin. Pick the right replacement for each.</p>","h":["l4td1hcbpy"],"hints":["gets has no length limit at all; the replacement takes the buffer size and a stream.","Pairs: gets→fgets, strcpy→strncpy, strcat→strncat, sprintf→snprintf."],"widget":"match","w":{"opts":["fgets","strncpy","strncat","snprintf"],"rows":[{"q":"<code>gets(buf)</code>","a":"fgets"},{"q":"<code>strcpy(dst, src)</code>","a":"strncpy"},{"q":"<code>strcat(dst, src)</code>","a":"strncat"},{"q":"<code>sprintf(buf, fmt, ...)</code>","a":"snprintf"}]},"rv":"Q1RGe2JvdW5kZWRfYW5kX3Byb3VkfQ=="},{"id":"u2","cat":"unsafe","title":"The strncpy Gotcha","pts":100,"diff":2,"body":"<pre class=\"code\">char dest[10];\nstrncpy(dest, src, sizeof(dest) - 1);</pre>\n<p>If <code>src</code> is longer than the limit, <code>strncpy</code> will <b>not</b> add a terminator. What must you do manually afterwards to avoid later over-reads? Flag: <code>CTF{two_words}</code> (underscore-joined).</p>","h":["15bv27tnoac","29vkpljathm","monleiezlk","kxo6sq3yw0"],"hints":["The string needs its final byte set by hand: <code>dest[sizeof(dest) - 1] = ...</code>","Set the last byte to <code>\\0</code>: null-terminate it."],"widget":null},{"id":"u3","cat":"unsafe","title":"Bug Hunt II","pts":175,"diff":3,"body":"<p>These two bugs are subtler: one is on the <b>heap</b> and one is an <b>integer</b> flaw that leads to a heap overflow.</p>","h":["1xh840qn3i3"],"hints":["Snippet 1: compare the size passed to <code>fgets</code> with the size passed to <code>malloc</code>.","Snippet 2: the multiplication <code>n * 4</code> can wrap, so the allocation can be tiny while the copy is huge."],"widget":"bughunt","w":{"snips":[{"title":"Snippet 1","lines":["char *buffer = malloc(16);","char *target = malloc(16);","fgets(buffer, 100, stdin);","printf(\"%s\\n\", target);"],"a":2},{"title":"Snippet 2","lines":["unsigned int n = read_count();","unsigned int size = n * 4;","char *p = malloc(size);","memcpy(p, data, n * 4);"],"a":1}]},"rv":"Q1RGe2FkamFjZW50X2NodW5rc30="},{"id":"fs1","cat":"fmt","title":"Specifier Sort","pts":125,"diff":2,"body":"<p>The exam lists seven format specifiers. Match these four behaviours.</p>","h":["suj2fgm9vl"],"hints":["Remember which one <b>writes</b> to memory instead of printing.","%p leaks addresses, %n writes the byte count, %s reads a string, %x prints hex."],"widget":"match","w":{"opts":["%x","%s","%p","%n"],"rows":[{"q":"Writes the number of bytes printed so far to an address (it does not print anything).","a":"%n"},{"q":"Prints a pointer / memory address, so it can leak layout and weaken ASLR.","a":"%p"},{"q":"Prints a null-terminated string from an address on the stack.","a":"%s"},{"q":"Prints an unsigned value in lowercase hex; the classic way to read the stack.","a":"%x"}]},"rv":"Q1RGe3BlcmNlbnRfcGVyZmVjdH0="},{"id":"fs2","cat":"fmt","title":"Format Fact-Check","pts":125,"diff":2,"body":"<p>Decide whether each statement is true or false.</p>","h":["kfebgjc0t7"],"hints":["Remember mock exam Q11: <code>fgets</code> was used safely, yet the code was still vulnerable.","The safe pattern keeps the format string fixed: <code>printf(\"%s\", input)</code>."],"widget":"tf","w":{"items":[{"t":"<code>printf(user_input)</code> is vulnerable because the user controls the format string.","a":true},{"t":"Limiting input with <code>fgets(input, sizeof(input), stdin)</code> makes <code>printf(input)</code> safe.","a":false},{"t":"A <b>static</b> format string bug is when there are more specifiers than arguments.","a":true},{"t":"<code>printf(\"%s\", input)</code> is a safe way to print user input.","a":true},{"t":"<code>%n</code> reads a value from memory and prints it.","a":false}]},"rv":"Q1RGe3RydXN0X25vX2Zvcm1hdH0="},{"id":"fs3","cat":"fmt","title":"Which Kind?","pts":75,"diff":1,"body":"<pre class=\"code\">char buf[64];\nfgets(buf, sizeof(buf), stdin);\nprintf(buf);</pre>\n<p>The notes split format string bugs into <b>static</b> (extra specifiers, fixed string) and <b>dynamic</b> (user input used as the format). Which is this? Flag: <code>CTF{type}</code>.</p>","h":["1a2rpca7rd8"],"hints":["Who decides the format string here: the programmer or the user?","The user input is the format string, so it is dynamic."],"widget":null},{"id":"h1","cat":"heap","title":"Allocator Match","pts":100,"diff":1,"body":"<p>Match each heap function to what it does.</p>","h":["29as5nb8wu3"],"hints":["calloc is the one that zeroes memory; malloc leaves it uninitialised.","free returns memory to the allocator without clearing it."],"widget":"match","w":{"opts":["malloc","calloc","realloc","free"],"rows":[{"q":"Allocates n bytes and does <b>not</b> initialise them.","a":"malloc"},{"q":"Allocates n × size bytes and sets all of them to zero.","a":"calloc"},{"q":"Resizes an existing allocation; may return a different pointer.","a":"realloc"},{"q":"Returns memory to the system but does <b>not</b> zero it.","a":"free"}]},"rv":"Q1RGe2hlYXBfaGVyb30="},{"id":"h2","cat":"heap","title":"Heap Facts","pts":100,"diff":2,"body":"<p>True or false?</p>","h":["rz372r6zbm"],"hints":["Think about what each function guarantees, and what it does not.","Only calloc zeroes. malloc returns NULL on failure. free leaves the old bytes in place."],"widget":"tf","w":{"items":[{"t":"<code>malloc</code> initialises the memory it returns to zero.","a":false},{"t":"<code>calloc</code> initialises all allocated bytes to zero.","a":true},{"t":"<code>free()</code> overwrites the freed memory with zeroes.","a":false},{"t":"<code>realloc</code> may return a different pointer from the one passed in.","a":true},{"t":"<code>malloc</code> returns NULL on failure, so the result should be checked.","a":true},{"t":"Heap memory lives until <code>free()</code> is called (or the program ends).","a":true}]},"rv":"Q1RGe2hlYXBfZmFjdHNfY2hlY2tlZH0="},{"id":"h3","cat":"heap","title":"Slow Drain","pts":75,"diff":1,"body":"<p>A server allocates memory for every request with <code>malloc</code> but never calls <code>free</code>. Over days, available memory shrinks until it falls over.</p>\n<p>What is this problem called? Flag: <code>CTF{two_words}</code>, underscore-joined.</p>","h":["sj86n91pr4","nm3ud5lz3r"],"hints":["The slides call these \"objects on the heap no longer used\".","It is a memory leak."],"widget":null},{"id":"z1","cat":"fuzz","title":"Lifecycle","pts":150,"diff":2,"body":"<p>Put the six steps of the fuzzing lifecycle in order, first at the top.</p>","h":["r3zrohyli9"],"hints":["You cannot generate data before you know what the inputs are.","Identify target → identify inputs → generate fuzzed data → execute → monitor for exceptions → determine exploitability."],"widget":"order","w":{"prompt":"First step at the top:","items":["Identify the target","Identify inputs (file, stdin, network...)","Generate fuzzed data","Execute the fuzzed data","Monitor for exceptions (crashes, hangs)","Determine exploitability"]},"rv":"Q1RGe2Z1enpfaW5fb3JkZXJ9"},{"id":"z2","cat":"fuzz","title":"Method Match","pts":125,"diff":2,"body":"<p>Match each description to a fuzzing approach.</p>","h":["29abfq8m41a"],"hints":["zzuf flips bits in existing valid files.","AFL uses code-coverage feedback and genetic algorithms."],"widget":"match","w":{"opts":["Mutation-based","Generation-based","Evolutionary"],"rows":[{"q":"Takes valid inputs and randomly flips bits or bytes. (Example tool: zzuf)","a":"Mutation-based"},{"q":"Builds inputs from scratch using a format specification or grammar.","a":"Generation-based"},{"q":"Uses coverage feedback and genetic algorithms to evolve inputs. (Example tool: AFL)","a":"Evolutionary"},{"q":"Drawback: needs someone to write a detailed specification first.","a":"Generation-based"}]},"rv":"Q1RGe21ldGhvZF9tYXRjaGVyfQ=="},{"id":"z3","cat":"fuzz","title":"Fuzzing & AFL Facts","pts":150,"diff":2,"body":"<p>True or false?</p>","h":["nz59pr182f"],"hints":["AFL has five limitations on the slides: crashes only, stdin/file only, Linux only, needs source rebuild, no native parallelisation.","Fuzzing is probabilistic, so it never guarantees finding everything."],"widget":"tf","w":{"items":[{"t":"Fuzzing is guaranteed to find every vulnerability in a program.","a":false},{"t":"You can fuzz a compiled binary even without its source code (black box).","a":true},{"t":"AFL can natively fuzz network programs.","a":false},{"t":"AFL targets generally have to be rebuilt from source with AFL tooling.","a":true},{"t":"AFL works best on Windows and Linux alike.","a":false},{"t":"Mutating file headers too aggressively wastes cycles because the program rejects the file.","a":true}]},"rv":"Q1RGe2FmbF9hd2FyZX0="},{"id":"z4","cat":"fuzz","title":"Black, White or Grey","pts":75,"diff":1,"body":"<p>A tester has <b>no access to source code</b> and examines the program only through its inputs and outputs, just like an attacker would. (The notes mention the Intel Pentium FDIV bug being found this way.)</p>\n<p>Name this testing method. Flag: <code>CTF{two_words}</code>, underscore-joined.</p>","h":["d03o468ehr","1hdrlplwxgk"],"hints":["White box has full access; grey box has partial access.","No access at all means black box."],"widget":null},{"id":"z5","cat":"fuzz","title":"Coverage Criteria","pts":75,"diff":2,"body":"<p>The coverage criteria include <b>Loop</b> coverage: every loop is tested <i>zero</i> times, <i>once</i>, and ______ times.</p>\n<p>Fill in the missing word. Flag: <code>CTF{word}</code>.</p>","h":["1q3fba4alw8"],"hints":["Zero, once, and... more than once.","The word is \"many\"."],"widget":null},{"id":"p1","cat":"prot","title":"Protection Match","pts":150,"diff":2,"body":"<p>Match each description to the memory protection it describes.</p>","h":["18n9gguxzbr"],"hints":["W^X is a policy: memory is writable XOR executable. The NX bit is the hardware feature that marks the stack non-executable.","Canaries sit between buffers and the return address; ASLR randomises where things load."],"widget":"match","w":{"opts":["Non-executable stack (NX)","W^X","Stack canary","ASLR"],"rows":[{"q":"A value placed before the return address; checked on return to detect corruption.","a":"Stack canary"},{"q":"Randomises where the stack, heap and libraries are loaded on every run.","a":"ASLR"},{"q":"Policy: memory is writable <i>or</i> executable, never both.","a":"W^X"},{"q":"Marks the stack non-executable using the processor's No eXecute bit.","a":"Non-executable stack (NX)"}]},"rv":"Q1RGe3NoaWVsZHNfdXB9"},{"id":"p2","cat":"prot","title":"Protection Fact-Check","pts":175,"diff":3,"body":"<p>These are the statements people most often get wrong. True or false?</p>","h":["hvbyefurlb"],"hints":["A non-executable stack does not stop the return address being overwritten.","ASLR is a system-wide OS setting, and on 64-bit systems W^X cannot be disabled."],"widget":"tf","w":{"items":[{"t":"A non-executable stack stops the return address from being overwritten.","a":false},{"t":"ASLR is an operating-system setting, not a per-application one.","a":true},{"t":"On 64-bit architectures W^X can be turned off by the program.","a":false},{"t":"A stack canary is checked when the function returns.","a":true},{"t":"A memory leak can help an attacker bypass ASLR.","a":true},{"t":"<code>-fstack-protector-all</code> adds canaries to all functions that have local buffers.","a":true},{"t":"<code>-z execstack</code> makes the stack executable again.","a":true}]},"rv":"Q1RGe3Byb3RlY3Rpb25fcHVuZGl0fQ=="},{"id":"p3","cat":"prot","title":"Canary Bytes","pts":125,"diff":3,"body":"<p>A <b>terminator canary</b> is <code>0x000aff0d</code>. Each byte is chosen to stop a particular string function from copying any further.</p>\n<p>Which byte stops <code>strcpy</code> (because it is the string terminator)? Flag: <code>CTF{0x..}</code> in the form <code>0xNN</code>.</p>","h":["1cq7m42ualy","19c36dix1jw"],"hints":["Strings in C end with a null byte.","The answer is 0x00."],"widget":null},{"id":"p4","cat":"prot","title":"ASLR's Weak Spot","pts":100,"diff":2,"body":"<p>The notes say ASLR \"relies on ______\". Systems with limited randomness (most 32-bit systems) make addresses easier to guess or brute-force.</p>\n<p>Fill in the missing word describing the amount of randomness available. Flag: <code>CTF{word}</code>.</p>","h":["25xqhlp990w"],"hints":["It is the same word used for randomness in cryptography.","The word is \"entropy\"."],"widget":null},{"id":"p5","cat":"prot","title":"Shellcode Truths","pts":125,"diff":2,"body":"<p>True or false?</p>","h":["1pb2zwvkobe"],"hints":["Shellcode is machine code, not source code, so it does not matter whether it sits on the stack or the heap.","String functions such as <code>strcpy</code> stop at 0x00."],"widget":"tf","w":{"items":[{"t":"Shellcode is C source code that gets compiled when injected.","a":false},{"t":"Shellcode behaves the same whether it is stored on the stack or the heap.","a":true},{"t":"Shellcode delivered via <code>strcpy</code> or <code>gets</code> should avoid null bytes.","a":true},{"t":"A larger NOP sled gives a bigger target window for the guessed return address.","a":true},{"t":"ret2data places injected code in the data segment and jumps to it.","a":true},{"t":"ret2libc takes control of a complete stack frame to call a library function.","a":true}]},"rv":"Q1RGe3NoZWxsY29kZV9zYWdlfQ=="},{"id":"b1","cat":"boss","title":"Mock Exam Gauntlet","pts":300,"diff":3,"body":"<p>Ten exam-style questions. Every answer must be right to reveal the flag, and it will tell you which ones to revisit.</p>","h":["1qj879n99d1"],"hints":["The question numbers tell you where to look. Re-read your notes for just those topics.","Be careful with absolutes like \"always\" or \"guarantees\"."],"widget":"quiz","w":{"qs":[{"q":"ASLR is...","o":["an application compile flag","an operating-system setting","a CPU instruction","a type of stack canary"],"a":1},{"q":"Which best describes a NOP sled?","o":["Code that disables the stack canary","A range of addresses the return address can land in, making the exploit more probable","A function that frees heap memory","A method of encrypting shellcode"],"a":1},{"q":"How does shellcode differ between being stored on the stack and on the heap?","o":["It is larger on the heap","It is written in a different language","It doesn't","It must be encrypted on the heap"],"a":2},{"q":"<code>fgets(input, sizeof(input), stdin); printf(input);</code> What is the vulnerability?","o":["The input buffer can be overflowed","The user input is passed directly as the format string to printf","fgets does not null-terminate","sizeof returns the wrong value"],"a":1},{"q":"When mutating files for fuzzing, headers should be...","o":["always randomised completely","ignored","mutated carefully so the program still opens the file","removed"],"a":2},{"q":"Can fuzzing find all vulnerabilities?","o":["Yes, given enough time","No, it is probability-based and only finds some","Yes, if run with AFL","Only for stack bugs"],"a":1},{"q":"Static analysis of code is...","o":["running the program with random input","a visual assessment of the code to identify possible vulnerabilities","a type of heap allocation","monitoring network traffic"],"a":1},{"q":"Non-executable data segments protect against which attack?","o":["Format string leaks","Memory leaks","Stack overflow with shellcode injection","Integer underflow"],"a":2},{"q":"<code>int x = INT_MAX; x = x + 1;</code> Why is this an overflow?","o":["x was set to INT_MAX","x is incremented beyond the maximum value","int is always unsafe","x is not initialised"],"a":1},{"q":"A fuzzer finds a crash. What is the LAST step of the lifecycle?","o":["Generate fuzzed data","Execute the fuzzed data","Monitor for exceptions","Determine exploitability"],"a":3}]},"rv":"Q1RGe3ZkZV9jZXJ0aWZpZWR9"}];
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function cyrb53(str,seed=0){let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);}
+const hashFlag=f=>cyrb53(f.trim().toLowerCase()).toString(36);
+function toast(t,bad){const el=$('#toast');el.textContent=t;el.className='toast show'+(bad?' bad':'');clearTimeout(toast.t);toast.t=setTimeout(()=>el.className='toast',2600);}
+
+const CATS={
+  intro:{name:'Warm-Up',icon:'🚀',blurb:'Start here'},
+  found:{name:'Foundations',icon:'🧱',blurb:'CIA, terms and registers'},
+  ints:{name:'Integer Bugs',icon:'🔢',blurb:'Know your ranges'},
+  stack:{name:'Stack & Overflow',icon:'📚',blurb:'Frames, padding and sleds'},
+  unsafe:{name:'Unsafe C',icon:'⚠️',blurb:'Spot it, then fix it'},
+  fmt:{name:'Format Strings',icon:'🧵',blurb:'printf and friends'},
+  heap:{name:'The Heap',icon:'🗄️',blurb:'Dynamic memory'},
+  fuzz:{name:'Fuzzing & AFL',icon:'🎲',blurb:'Finding bugs at scale'},
+  prot:{name:'Protections',icon:'🛡️',blurb:'NX, W^X, canaries, ASLR'},
+  boss:{name:'Boss Level',icon:'👑',blurb:'Exam-style gauntlet'}
+};
+
+let S=null;
+try{S=JSON.parse(localStorage.getItem('vde_state_v1'))}catch(e){}
+S=S||{team:'',start:0,solved:{},hints:{},ended:false,extra:0};
+const save=()=>{try{localStorage.setItem('vde_state_v1',JSON.stringify(S))}catch(e){}};
+const params=new URLSearchParams(location.search);
+const baseMin=Math.max(1,parseInt(params.get('minutes'))||90);
+const duration=()=>(baseMin*60+(S.extra||0))*1000;
+const hintCost=(c,n)=>n<=0?0:(n===1?Math.round(c.pts*.1):Math.round(c.pts*.3));
+const score=()=>Object.values(S.solved).reduce((a,b)=>a+b.pts,0);
+const total=()=>DATA.reduce((a,c)=>a+c.pts,0);
+const timeLeft=()=>S.start?Math.max(0,S.start+duration()-Date.now()):duration();
+const over=()=>S.ended||(S.start&&timeLeft()<=0);
+const fmt=ms=>{const s=Math.ceil(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+
+function boot(){
+  if(!S.start){$('#welcome').classList.remove('hidden');$('#app').classList.add('hidden');return}
+  $('#welcome').classList.add('hidden');$('#app').classList.remove('hidden');
+  if(params.has('host'))$('#hostbox').classList.remove('hidden');
+  $('#hTeam').textContent=S.team;
+  renderBoard();updateHeader();tick();
+  if(!boot.timer)boot.timer=setInterval(tick,1000);
+  initTools();
+}
+$('#startbtn').onclick=()=>{
+  const n=$('#teamname').value.trim();
+  if(!n){$('#teamname').focus();toast('Pick a team name first',true);return}
+  S.team=n;S.start=Date.now();S.solved={};S.hints={};S.ended=false;S.extra=0;save();boot();
+};
+$('#teamname').addEventListener('keydown',e=>{if(e.key==='Enter')$('#startbtn').click()});
+function updateHeader(){
+  $('#hScore').textContent=score();
+  $('#hSolved').textContent=Object.keys(S.solved).length+'/'+DATA.length;
+  $('#hBar').style.width=(Object.keys(S.solved).length/DATA.length*100)+'%';
+}
+function tick(){
+  const left=timeLeft();
+  $('#hTimer').textContent=S.ended?'DONE':fmt(left);
+  const tb=$('#timerBox');tb.classList.toggle('warn',left<=15*60e3&&left>5*60e3);tb.classList.toggle('crit',left<=5*60e3&&!S.ended);
+  if(!S.ended&&left<=0){S.ended=true;save();showReport(true)}
+}
+$('#tabs').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  $$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['board','tools','brief'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',t!==b.dataset.tab));
+};
+
+function renderBoard(){
+  let h='';
+  for(const k of Object.keys(CATS)){
+    const list=DATA.filter(c=>c.cat===k);if(!list.length)continue;
+    const done=list.filter(c=>S.solved[c.id]).length;
+    h+=`<div class="cat"><h2>${CATS[k].icon} ${CATS[k].name}</h2><small>${CATS[k].blurb} · ${done}/${list.length}</small></div><div class="grid">`;
+    for(const c of list){
+      const s=S.solved[c.id];
+      h+=`<button class="ch ${s?'done':''}" data-id="${c.id}"><div class="t">${esc(c.title)}</div><div class="m"><span>${'★'.repeat(c.diff)}${'☆'.repeat(3-c.diff)}</span><span class="pts">${s?'+'+s.pts:c.pts} pts</span></div></button>`;
+    }
+    h+='</div>';
+  }
+  $('#tab-board').innerHTML=h;
+  $$('.ch').forEach(b=>b.onclick=()=>openChallenge(b.dataset.id));
+}
+
+function closeModal(){$('#modal').classList.add('hidden');document.body.style.overflow=''}
+$('#modal').addEventListener('mousedown',e=>{if(e.target.id==='modal')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('hidden')&&!$('#mbox').dataset.report)closeModal()});
+
+function openChallenge(id){
+  const c=DATA.find(x=>x.id===id);if(!c)return;
+  const solved=S.solved[id];
+  const mb=$('#mbox');mb.dataset.report='';
+  mb.innerHTML=`<button class="mclose" aria-label="Close">×</button>
+    <div><span class="tag">${CATS[c.cat].icon} ${CATS[c.cat].name}</span><span class="tag pts">${c.pts} pts</span><span class="tag">${'★'.repeat(c.diff)}${'☆'.repeat(3-c.diff)}</span></div>
+    <h2 style="margin-top:12px">${esc(c.title)}</h2>
+    <div class="body">${c.body}</div>
+    <div id="widget"></div>
+    <div class="flagrow"><input type="text" id="flagIn" placeholder="CTF{...}" autocomplete="off" spellcheck="false" ${solved?'disabled':''}><button class="btn" id="flagGo" ${solved?'disabled':''}>Submit</button></div>
+    <div class="msg ${solved?'ok':''}" id="flagMsg">${solved?'✓ Solved for '+solved.pts+' points':''}</div>
+    <div class="hints" id="hintBox"></div>`;
+  $('#modal').classList.remove('hidden');document.body.style.overflow='hidden';
+  $('.mclose',mb).onclick=closeModal;
+  renderHints(c);
+  if(c.widget&&WIDGETS[c.widget])WIDGETS[c.widget]($('#widget'),c);
+  const submit=()=>{
+    if(over()){$('#flagMsg').className='msg bad';$('#flagMsg').textContent='Time is up – submissions are closed.';return}
+    const v=$('#flagIn').value;if(!v.trim())return;
+    if(c.h.includes(hashFlag(v))){
+      const pts=Math.max(0,c.pts-hintCost(c,S.hints[id]||0));
+      S.solved[id]={pts,t:Date.now()};save();renderBoard();updateHeader();
+      $('#flagMsg').className='msg ok';$('#flagMsg').textContent='✓ Correct! +'+pts+' points';
+      $('#flagIn').disabled=true;$('#flagGo').disabled=true;toast('🏴 Flag captured! +'+pts);
+      if(Object.keys(S.solved).length===DATA.length)setTimeout(()=>showReport(false),1200);
+    }else{
+      $('#flagMsg').className='msg bad';$('#flagMsg').textContent='✗ Not quite. Check the format and spelling.';
+    }
+  };
+  $('#flagGo').onclick=submit;
+  $('#flagIn').addEventListener('keydown',e=>{if(e.key==='Enter')submit()});
+  if(!solved)setTimeout(()=>$('#flagIn').focus(),30);
+}
+function renderHints(c){
+  const used=S.hints[c.id]||0;const box=$('#hintBox');
+  let h='';
+  for(let i=0;i<used;i++)h+=`<div class="hint"><b>Hint ${i+1}:</b> ${c.hints[i]}</div>`;
+  if(used<c.hints.length&&!S.solved[c.id]){
+    h+=`<button class="btn sec sm" id="hintBtn">💡 Reveal hint ${used+1} (−${hintCost(c,used+1)} pts)</button>`;
+  }
+  box.innerHTML=h;
+  const b=$('#hintBtn');
+  if(b)b.onclick=()=>{S.hints[c.id]=(S.hints[c.id]||0)+1;save();renderHints(c)};
+}
+
+function showReport(timeUp){
+  const rows=DATA.filter(c=>S.solved[c.id]).map(c=>`<tr><td>${esc(c.title)}</td><td>${esc(CATS[c.cat].name)}</td><td>${S.solved[c.id].pts}</td></tr>`).join('');
+  const missed=DATA.filter(c=>!S.solved[c.id]).length;
+  const mb=$('#mbox');mb.dataset.report='1';
+  mb.innerHTML=`<button class="mclose" aria-label="Close">×</button>
+    <h2>${timeUp?'⏰ Time\'s up!':'📄 Mission report'}</h2>
+    <p class="lead">Team <b>${esc(S.team)}</b> · <b style="color:var(--amber)">${score()}</b> / ${total()} points · ${Object.keys(S.solved).length}/${DATA.length} flags${missed?'':' · 🏆 PERFECT'}</p>
+    <table class="sum"><tr><th>Challenge</th><th>Category</th><th>Points</th></tr>${rows||'<tr><td colspan="3">No flags yet – keep hunting!</td></tr>'}</table>
+    <div class="row" style="margin-top:16px"><button class="btn" id="copyRep">📋 Copy summary</button><button class="btn sec" id="closeRep">Close</button></div>
+    <p class="lead" style="font-size:13px">Show this screen to your host to log your score.</p>`;
+  $('#modal').classList.remove('hidden');
+  $('.mclose',mb).onclick=closeModal;$('#closeRep').onclick=closeModal;
+  $('#copyRep').onclick=()=>{
+    const t=`VDE Quest – Team ${S.team}: ${score()}/${total()} pts, ${Object.keys(S.solved).length}/${DATA.length} flags`;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Copied!'),()=>toast(t));
+  };
+}
+$('#reportBtn').onclick=()=>showReport(false);
+$('#finishBtn').onclick=()=>{if(confirm('Finish now? Your clock stops and submissions close.')){S.ended=true;S.endedAt=Date.now();save();tick();showReport(false)}};
+$('#hostPlus').onclick=()=>{S.extra=(S.extra||0)+600;S.ended=false;save();tick();toast('+10 minutes')};
+$('#hostReset').onclick=()=>{if(confirm('Wipe progress in this browser?')){try{localStorage.removeItem('vde_state_v1')}catch(e){}location.reload()}};
+
+/* ================= WIDGETS ================= */
+const WIDGETS={};
+function win(R,c,msg){R.className='res ok';R.innerHTML='✔ '+msg+'<br>Flag: <b>'+esc(A(c.rv))+'</b>'}
+function lose(R,msg){R.className='res bad';R.textContent=msg}
+
+/* put items in the right order */
+WIDGETS.order=(el,c)=>{
+  const correct=c.w.items;const n=correct.length;
+  let perm=[...Array(n).keys()].reverse();[perm[0],perm[1]]=[perm[1],perm[0]];
+  const draw=()=>{
+    el.innerHTML=`<div class="box"><p style="margin:0 0 8px;color:var(--dim);font-size:13px">${c.w.prompt}</p>`+perm.map((p,i)=>`<div class="ord"><span class="n">${i+1}.</span><span class="tx">${correct[p]}</span><button data-i="${i}" data-d="-1" ${i===0?'disabled':''}>▲</button><button data-i="${i}" data-d="1" ${i===n-1?'disabled':''}>▼</button></div>`).join('')+`<p style="margin:10px 0 0"><button class="btn sm" id="ordGo">Check order</button></p><div class="res" id="ordR"></div></div>`;
+    $$('.ord button',el).forEach(b=>b.onclick=()=>{const i=+b.dataset.i,d=+b.dataset.d;[perm[i],perm[i+d]]=[perm[i+d],perm[i]];draw()});
+    $('#ordGo',el).onclick=()=>{
+      const ok=perm.every((p,i)=>p===i);
+      if(ok)win($('#ordR',el),c,'Correct order.');else lose($('#ordR',el),perm.filter((p,i)=>p===i).length+'/'+n+' in the right place. Keep going.');
+    };
+  };draw();
+};
+
+/* match rows to dropdown answers */
+WIDGETS.match=(el,c)=>{
+  const rows=c.w.rows,opts=c.w.opts;
+  el.innerHTML=`<div class="box">`+rows.map((r,i)=>`<div class="mrow"><span>${r.q}</span><select data-i="${i}"><option value="">— choose —</option>${opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select></div>`).join('')+`<p style="margin:10px 0 0"><button class="btn sm" id="mGo">Check answers</button></p><div class="res" id="mR"></div></div>`;
+  $('#mGo',el).onclick=()=>{
+    const sel=$$('select',el);
+    if(sel.some(s=>!s.value)){lose($('#mR',el),'Answer every row first.');return}
+    const ok=sel.filter((s,i)=>s.value===rows[i].a).length;
+    if(ok===rows.length)win($('#mR',el),c,'All '+ok+' correct.');else lose($('#mR',el),ok+'/'+rows.length+' correct. Re-read the ones you are least sure of.');
+  };
+};
+
+/* true / false list */
+WIDGETS.tf=(el,c)=>{
+  const items=c.w.items,ans={};
+  el.innerHTML=`<div class="box">`+items.map((it,i)=>`<div class="tfrow"><span>${it.t}</span><span class="bt"><button data-i="${i}" data-v="1">True</button><button data-i="${i}" data-v="0">False</button></span></div>`).join('')+`<p style="margin:10px 0 0"><button class="btn sm" id="tfGo">Submit answers</button></p><div class="res" id="tfR"></div></div>`;
+  el.onclick=e=>{
+    const b=e.target.closest('.tfrow button');if(!b)return;
+    ans[b.dataset.i]=b.dataset.v==='1';
+    $$('button',b.parentNode).forEach(x=>x.classList.toggle('sel',(x.dataset.v==='1')===ans[b.dataset.i]));
+  };
+  $('#tfGo',el).onclick=()=>{
+    if(Object.keys(ans).length<items.length){lose($('#tfR',el),'Answer all '+items.length+' statements first.');return}
+    const ok=items.filter((it,i)=>ans[i]===it.a).length;
+    if(ok===items.length)win($('#tfR',el),c,'All '+ok+' correct.');else lose($('#tfR',el),ok+'/'+items.length+' correct. Check the ones that sound too absolute.');
+  };
+};
+
+/* click the vulnerable line in each snippet */
+WIDGETS.bughunt=(el,c)=>{
+  const sn=c.w.snips,pick={};
+  el.innerHTML=`<div class="box"><p style="margin:0 0 6px;color:var(--dim);font-size:13px">Click the line that contains the root-cause bug in each snippet.</p>`+sn.map((s,i)=>`<div style="margin-top:10px"><b style="font-size:13px">${s.title}</b><div class="cl" data-s="${i}">${s.lines.map((l,j)=>`<div data-j="${j}">${esc(l)}</div>`).join('')}</div></div>`).join('')+`<p style="margin:10px 0 0"><button class="btn sm" id="bhGo">Submit</button></p><div class="res" id="bhR"></div></div>`;
+  el.onclick=e=>{
+    const d=e.target.closest('.cl div');if(!d)return;
+    const cl=d.parentNode;pick[cl.dataset.s]=+d.dataset.j;
+    $$('div',cl).forEach(x=>x.classList.toggle('sel',x===d));
+  };
+  $('#bhGo',el).onclick=()=>{
+    if(Object.keys(pick).length<sn.length){lose($('#bhR',el),'Pick a line in every snippet.');return}
+    const ok=sn.filter((s,i)=>pick[i]===s.a).length;
+    if(ok===sn.length)win($('#bhR',el),c,'Both bugs found.');else lose($('#bhR',el),ok+'/'+sn.length+' correct. Ask: where does the program stop respecting a limit, or hand control to the user?');
+  };
+};
+
+/* multiple-choice gauntlet */
+WIDGETS.quiz=(el,c)=>{
+  const qs=c.w.qs;
+  el.innerHTML=`<div class="box">`+qs.map((q,i)=>`<div class="q"><b>${i+1}. ${q.q}</b>${q.o.map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}">${o}</label>`).join('')}</div>`).join('')+`<p style="margin:10px 0 0"><button class="btn sm" id="qzGo">Submit exam</button></p><div class="res" id="qzR"></div></div>`;
+  $('#qzGo',el).onclick=()=>{
+    const got=qs.map((q,i)=>{const r=$(`input[name=q${i}]:checked`,el);return r?+r.value:-1});
+    if(got.includes(-1)){lose($('#qzR',el),'Answer every question first.');return}
+    const ok=got.filter((g,i)=>g===qs[i].a).length;
+    const wrong=got.map((g,i)=>g===qs[i].a?null:i+1).filter(Boolean);
+    if(ok===qs.length)win($('#qzR',el),c,'Full marks.');else lose($('#qzR',el),ok+'/'+qs.length+' correct. Revisit question'+(wrong.length>1?'s ':' ')+wrong.join(', ')+'.');
+  };
+};
+
+/* ================= TOOLKIT ================= */
+function initTools(){
+  if(initTools.done)return;initTools.done=true;
+  const T={u8:[0,255],s8:[-128,127],u16:[0,65535],u32:[0,4294967295]};
+  $('#wGo').onclick=()=>{
+    const t=$('#wType').value,[lo,hi]=T[t],a=+$('#wA').value,b=+$('#wB').value,op=$('#wOp').value;
+    const raw=op==='+'?a+b:op==='-'?a-b:a*b;
+    const size=hi-lo+1;
+    const wrapped=((raw-lo)%size+size)%size+lo;
+    $('#wOut').className='res';$('#wOut').style.color='var(--text)';
+    $('#wOut').innerHTML=`Mathematical result: <b>${raw}</b><br>Stored in a ${t} (range ${lo} to ${hi}): <b style="color:var(--green)">${wrapped}</b>${raw!==wrapped?' <span style="color:var(--amber)">(wrapped!)</span>':''}`;
+  };
+  $('#cvGo').onclick=()=>{
+    const v=$('#cvIn').value.trim();let n;
+    if(/^0x[0-9a-f]+$/i.test(v))n=parseInt(v,16);else if(/^\d+$/.test(v))n=parseInt(v,10);else if(v.length===1)n=v.charCodeAt(0);else{$('#cvOut').textContent='Enter 0x41, 65 or a single character.';return}
+    $('#cvOut').innerHTML=`Decimal: <b>${n}</b> · Hex: <b>0x${n.toString(16)}</b> · Binary: <b>${n.toString(2)}</b> · ASCII: <b>${n>=32&&n<127?esc(String.fromCharCode(n)):'(non-printable)'}</b>`;
+  };
+}
+
+boot();
+</script>
+</body>
+</html>
